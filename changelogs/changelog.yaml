@@ -1,0 +1,12 @@
+---
+releases:
+  "1.0.0":
+    release_date: "2025-04-30"
+    changes:
+      major_changes:
+        - Init release
+      minor_changes: []
+      breaking_changes: []
+      removed_features: []
+      security_fixes: []
+      bug_fixes: []

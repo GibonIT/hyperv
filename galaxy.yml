@@ -1,0 +1,18 @@
+---
+namespace: gibonit
+name: hyperv
+version: 1.0.0
+readme: README.md
+authors:
+  - Leos Marek
+description: |
+  Collection to manage Microsoft Hyper-V
+license_file: license.md
+tags:
+  - windows
+  - hyperv
+dependencies: {}
+repository: "https://github.com/GibonIT/hyperv.git"
+documentation: ""
+homepage: ""
+build_ignore: []
