@@ -34,8 +34,8 @@ options:
 notes:
 - Ensure the Hyper-V role is installed and enabled on the host system.
 seealso:
-- module: ansible.windows.win_hyperv
-- module: ansible.windows.win_hyperv_network
+- module: gibonit.hyperv.hyperv_guest
+- module: gibonit.hyperv.hyperv_guest_ipaddress
 author:
 - Leos Marek (@GibonIT)
 '''
