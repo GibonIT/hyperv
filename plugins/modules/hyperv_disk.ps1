@@ -7,8 +7,8 @@ $ErrorActionPreference = "Stop"
 
 $spec = @{
   options = @{
-    source_vhdx_path = @{ type = "str"; required = $true }
-    destination_vhdx_path = @{ type = "str"; required = $true }
+    path = @{ type = "str"; required = $true }
+    destination_path = @{ type = "str"; required = $true }
     type = @{ type = "str"; choices = @("fixed", "dynamic", "differencing"); default = "dynamic" }
     delete_source = @{ type = "bool"; default = $false }
   }
@@ -17,8 +17,8 @@ $spec = @{
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
-$sourceVhdxPath = $module.Params.source_vhdx_path
-$destinationVhdxPath = $module.Params.destination_vhdx_path
+$sourceVhdxPath = $module.Params.path
+$destinationVhdxPath = $module.Params.destination_path
 $deleteSource = $module.Params.delete_source
 $type = $module.Params.type
 
