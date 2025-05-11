@@ -6,7 +6,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: gibonnn.windows.hyperv_guest
+module: gibonit.hyperv.hyperv_guest
 short_description: Manage Hyper-V virtual machines
 description:
 - Create, configure, or remove Hyper-V virtual machines.
@@ -82,28 +82,28 @@ options:
 notes:
 - Ensure the Hyper-V role is installed and enabled on the host system.
 - Some settings, such as the number of CPUs, must be configured after VM creation due to limitations of the New-VM PowerShell cmdlet.
-- Use the gibonnn.windows.hyperv_guest_customization module for advanced VM customization.
+- Use the gibonit.hyperv.hyperv_guest_customization module for advanced VM customization.
 seealso:
-- module: gibonnn.windows.hyperv_guest_powerstate
-- module: gibonnn.windows.hyperv_guest_customization
+- module: gibonit.hyperv.hyperv_guest_powerstate
+- module: gibonit.hyperv.hyperv_guest_customization
 author:
-- Leos Marek (@Gibonnn)
+- Leos Marek (@GibonIT)
 '''
 
 EXAMPLES = r'''
 - name: Create a new VM
-  gibonnn.windows.hyperv_guest:
+  gibonit.hyperv.hyperv_guest:
     name: TestVM
     state: present
 
 - name: Create a new VM with 4 cores
-  gibonnn.windows.hyperv_guest:
+  gibonit.hyperv.hyperv_guest:
     name: TestVM
     state: present
     cpu_count: 4
 
 - name: Create VM with new VHDX and attach to a virtual switch
-  gibonnn.windows.hyperv_guest:
+  gibonit.hyperv.hyperv_guest:
     name: TestVM
     state: present
     new_vhdx: true
@@ -111,7 +111,7 @@ EXAMPLES = r'''
     switch: DefaultSwitch
 
 - name: Remove VM and VHDX
-  gibonnn.windows.hyperv_guest:
+  gibonit.hyperv.hyperv_guest:
     name: TestVM
     state: absent
     remove_vhdx: true

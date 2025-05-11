@@ -6,7 +6,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: gibonnn.windows.hyperv_guest_dvddrive
+module: gibonit.hyperv.hyperv_guest_dvddrive
 short_description: Manage DVD drives for Hyper-V virtual machines
 description:
 - Add, update, or remove DVD drives for Hyper-V virtual machines.
@@ -47,26 +47,26 @@ notes:
 - Either C(name) or C(vmid) must be provided to identify the virtual machine.
 - Ensure the Hyper-V role is installed and enabled on the host system.
 seealso:
-- module: gibonnn.windows.hyperv_guest
-- module: gibonnn.windows.hyperv_guest_powerstate
+- module: gibonit.hyperv.hyperv_guest
+- module: gibonit.hyperv.hyperv_guest_powerstate
 author:
-- Leos Marek (@Gibonnn)
+- Leos Marek (@GibonIT)
 '''
 
 EXAMPLES = r'''
 - name: Add a DVD drive with an ISO to a VM
-  gibonnn.windows.hyperv_guest_dvddrive:
+  gibonit.hyperv.hyperv_guest_dvddrive:
     name: TestVM
     state: present
     path: C:\ISOs\example.iso
 
 - name: Remove a DVD drive from a VM
-  gibonnn.windows.hyperv_guest_dvddrive:
+  gibonit.hyperv.hyperv_guest_dvddrive:
     name: TestVM
     state: absent
 
 - name: Update the ISO path for an existing DVD drive
-  gibonnn.windows.hyperv_guest_dvddrive:
+  gibonit.hyperv.hyperv_guest_dvddrive:
     name: TestVM
     state: present
     path: C:\ISOs\new_example.iso

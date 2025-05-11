@@ -6,7 +6,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: gibonnn.windows.hyperv_guest_customization
+module: gibonit.hyperv.hyperv_guest_customization
 short_description: Customize Hyper-V virtual machines
 description:
 - Modify settings of existing Hyper-V virtual machines.
@@ -87,35 +87,35 @@ options:
     type: str
 notes:
 - Ensure the Hyper-V role is installed and enabled on the host system.
-- Use this module to modify existing virtual machines. For creating new VMs, use the gibonnn.windows.hyperv_guest module.
+- Use this module to modify existing virtual machines. For creating new VMs, use the gibonit.hyperv.hyperv_guest module.
 seealso:
-- module: gibonnn.windows.hyperv_guest
-- module: gibonnn.windows.hyperv_guest_powerstate
+- module: gibonit.hyperv.hyperv_guest
+- module: gibonit.hyperv.hyperv_guest_powerstate
 author:
-- Leos Marek (@Gibonnn)
+- Leos Marek (@GibonIT)
 '''
 
 EXAMPLES = r'''
 - name: Update VM memory and processors
-  gibonnn.windows.hyperv_guest_customization:
+  gibonit.hyperv.hyperv_guest_customization:
     name: TestVM
     startup_memory_gb: 8
     processor_count: 4
 
 - name: Enable dynamic memory with limits
-  gibonnn.windows.hyperv_guest_customization:
+  gibonit.hyperv.hyperv_guest_customization:
     name: TestVM
     dynamic_memory: true
     minimum_memory_gb: 4
     maximum_memory_gb: 16
 
 - name: Rename a virtual machine
-  gibonnn.windows.hyperv_guest_customization:
+  gibonit.hyperv.hyperv_guest_customization:
     name: TestVM
     new_vm_name: RenamedVM
 
 - name: Configure automatic start and stop actions
-  gibonnn.windows.hyperv_guest_customization:
+  gibonit.hyperv.hyperv_guest_customization:
     name: TestVM
     automatic_start_action: start
     automatic_stop_action: save

@@ -6,7 +6,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: gibonnn.windows.hyperv_guest_powerstate
+module: gibonit.hyperv.hyperv_guest_powerstate
 short_description: Manage the power state of Hyper-V virtual machines
 description:
 - Start, stop, save, or power off Hyper-V virtual machines.
@@ -37,27 +37,27 @@ seealso:
 - module: ansible.windows.win_hyperv
 - module: ansible.windows.win_hyperv_network
 author:
-- Leos Marek (@Gibonnn)
+- Leos Marek (@GibonIT)
 '''
 
 EXAMPLES = r'''
 - name: Start a VM by name
-  gibonnn.windows.hyperv_guest_powerstate:
+  gibonit.hyperv.hyperv_guest_powerstate:
     name: TestVM
     state: started
 
 - name: Stop a VM gracefully
-  gibonnn.windows.hyperv_guest_powerstate:
+  gibonit.hyperv.hyperv_guest_powerstate:
     name: TestVM
     state: stopped
 
 - name: Save the state of a VM
-  gibonnn.windows.hyperv_guest_powerstate:
+  gibonit.hyperv.hyperv_guest_powerstate:
     name: TestVM
     state: saved
 
 - name: Force power off a VM
-  gibonnn.windows.hyperv_guest_powerstate:
+  gibonit.hyperv.hyperv_guest_powerstate:
     name: TestVM
     state: poweroff
     force: true

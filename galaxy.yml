@@ -4,7 +4,7 @@ name: hyperv
 version: 1.0.0
 readme: README.md
 authors:
-  - Leos Marek
+  - Leos Marek (@GibonIT)
 description: |
   Collection to manage Microsoft Hyper-V
 license_file: license.md

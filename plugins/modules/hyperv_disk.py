@@ -6,7 +6,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: gibonit.hyperv.hyperv_disk
+module: gibonit.hyperv..hyperv_disk
 short_description: Clone VHDX files on Windows systems
 description:
 - Clone a VHDX file to a new location with options for type and source deletion.
@@ -37,26 +37,26 @@ notes:
 - Ensure the Hyper-V role is installed and enabled on the host system.
 - The Convert-VHD PowerShell cmdlet is used for cloning operations.
 seealso:
-- module: gibonit.hyperv.hyperv_guest
-- module: gibonit.hyperv.hyperv_guest_powerstate
+- module: gibonit.hyperv..hyperv_guest
+- module: gibonit.hyperv..hyperv_guest_powerstate
 author:
 - Leos Marek (@GibonIT)
 '''
 
 EXAMPLES = r'''
 - name: Clone a VHDX file to a new location
-  gibonit.hyperv.hyperv_disk:
+  gibonit.hyperv..hyperv_disk:
     path: C:\VMs\source.vhdx
     destination_path: C:\VMs\destination.vhdx
 
 - name: Clone a VHDX file and delete the source
-  gibonit.hyperv.hyperv_disk:
+  gibonit.hyperv..hyperv_disk:
     path: C:\VMs\source.vhdx
     destination_path: C:\VMs\destination.vhdx
     delete_source: true
 
 - name: Clone a VHDX file as a fixed type
-  gibonit.hyperv.hyperv_disk:
+  gibonit.hyperv..hyperv_disk:
     path: C:\VMs\source.vhdx
     destination_path: C:\VMs\destination_fixed.vhdx
     type: fixed
@@ -67,7 +67,7 @@ vhdx_info:
     description: Metadata about the cloned VHDX file.
     returned: changed
     type: dict
-    sample: 
+    sample:
       Path: C:\VMs\destination.vhdx
       Size: 10737418240
       Type: Dynamic
