@@ -5,23 +5,25 @@
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
 
+# Parameters section
+
 $Erroractionpreference = "Stop"
 
 $spec = @{
-  options = @{
+    options = @{
     # Global params
     state = @{ type = "str"; choices = @( "started", "stopped", "saved", "poweroff" ); default = "started" }
     name = @{ type = "str"}
     vmid = @{ type = "str" }
     force = @{ type = "bool"}
-  }
-  mutually_exclusive = @(
-    , @( 'name', 'vmid' )
-  )
-  required_one_of = @(
-    , @( 'name', 'vmid' )
-  )
-  supports_check_mode = $true
+    }
+    mutually_exclusive = @(
+        , @( 'name', 'vmid' )
+    )
+    required_one_of = @(
+        , @( 'name', 'vmid' )
+    )
+    supports_check_mode = $true
 }
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
@@ -32,96 +34,95 @@ $vmid = $module.Params.vmid
 $force = $module.Params.force
 
 $result = @{
-  changed = $false
+    changed = $false
 }
 
-Function Manage-VMState {
-  if ($name) {
+# Script section
+
+if ($name) {
     $vm = Get-VM -Name $name -ErrorAction SilentlyContinue
     if ($vm.Count -gt 1) {
-      $module.FailJson("Found more than 1 VM with name $name. Use id parameter to manage the correct one.")
+        $module.FailJson("Found more than 1 VM with name $name. Use id parameter to manage the correct one.")
     }
-  } elseif ($id) {
+}
+elseif ($id) {
     $vm = Get-VM -Id $id -ErrorAction SilentlyContinue
-  }
-
-  if ($vm) {
-    switch ($state) {
-      "started" {
-        if ($vm.State -eq "Running") {
-          $module.result.changed = $false
-        } elseif ($module.CheckMode) {
-          $module.result.desired_action = "Start VM: $($vm.Name)"
-          $module.result.changed = $true
-        } else {
-          try {
-            Start-VM -VM $vm
-            $module.result.changed = $true
-          } Catch {
-            $module.FailJson($_)
-          }
-        }
-      }
-      "stopped" {
-        if ($vm.State -eq "Off") {
-          $module.result.changed = $false
-        } elseif ($module.CheckMode) {
-          $module.result.desired_action = "Stop VM gracefully: $($vm.Name)"
-          $module.result.changed = $true
-        } else {
-          try {
-            Stop-VM -VM $vm -Force:$force
-            $module.result.changed = $true
-          } Catch {
-            $module.FailJson($_)
-          }
-        }
-      }
-      "poweroff" {
-        if ($vm.State -eq "Off") {
-          $module.result.changed = $false
-        } elseif ($module.CheckMode) {
-          $module.result.desired_action = "Power off VM: $($vm.Name)"
-          $module.result.changed = $true
-        } else {
-          try {
-            Stop-VM -VM $vm -TurnOff -Force:$force
-            $module.result.changed = $true
-          } Catch {
-            $module.FailJson($_)
-          }
-        }
-      }
-      "saved" {
-        if ($vm.State -eq "Saved") {
-          $module.result.changed = $false
-        } elseif ($module.CheckMode) {
-          $module.result.desired_action = "Save VM state: $($vm.Name)"
-          $module.result.changed = $true
-        } else {
-          try {
-            Save-VM -VM $vm
-            $module.result.changed = $true
-          } Catch {
-            $module.FailJson($_)
-          }
-        }
-      }
-    }
-  } else {
-    $module.FailJson("No VM found with the specified name or ID.")
-  }
 }
 
-Try {
+if ($vm) {
     switch ($state) {
-        "started" { Manage-VMState }
-        "stopped" { Manage-VMState }
-        "saved" { Manage-VMState }
-        "poweroff" { Manage-VMState }
+        "started" {
+            if ($vm.State -eq "Running") {
+                $module.result.changed = $false
+            }
+            elseif ($module.CheckMode) {
+                $module.result.desired_action = "Start VM: $($vm.Name)"
+                $module.result.changed = $true
+            }
+            else {
+                try {
+                    Start-VM -VM $vm
+                    $module.result.changed = $true
+                } Catch {
+                    $module.FailJson($_)
+                }
+            }
+        }
+        "stopped" {
+            if ($vm.State -eq "Off") {
+                $module.result.changed = $false
+            }
+            elseif ($module.CheckMode) {
+                $module.result.desired_action = "Stop VM gracefully: $($vm.Name)"
+                $module.result.changed = $true
+            }
+            else {
+                try {
+                    Stop-VM -VM $vm -Force:$force
+                    $module.result.changed = $true
+                } Catch {
+                    $module.FailJson($_)
+                }
+            }
+        }
+        "poweroff" {
+            if ($vm.State -eq "Off") {
+                $module.result.changed = $false
+            }
+            elseif ($module.CheckMode) {
+                $module.result.desired_action = "Power off VM: $($vm.Name)"
+                $module.result.changed = $true
+            }
+            else {
+                try {
+                    Stop-VM -VM $vm -TurnOff -Force:$force
+                    $module.result.changed = $true
+                } Catch {
+                    $module.FailJson($_)
+                }
+            }
+        }
+        "saved" {
+            if ($vm.State -eq "Saved") {
+                $module.result.changed = $false
+            }
+            elseif ($module.CheckMode) {
+                $module.result.desired_action = "Save VM state: $($vm.Name)"
+                $module.result.changed = $true
+            }
+            else {
+                try {
+                    Save-VM -VM $vm
+                    $module.result.changed = $true
+                } Catch {
+                    $module.FailJson($_)
+                }
+            }
+        }
     }
-} Catch {
-    $module.FailJson($_)
+}
+else {
+    $module.FailJson("No VM found with the specified name or ID.")
 }
 
 $module.ExitJson()

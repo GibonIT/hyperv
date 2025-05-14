@@ -5,37 +5,39 @@
 
 #AnsibleRequires -CSharpUtil Ansible.Basic
 
+# Parameters section
+
 $Erroractionpreference = "Stop"
 
 $spec = @{
-  options = @{
-    # Global params
-    state = @{ type = "str"; choices = @("present", "absent"); default = "present" }
-    name = @{ type = "str"; required = $true }
+    options = @{
+        # Global params
+        state = @{ type = "str"; choices = @("present", "absent"); default = "present" }
+        name = @{ type = "str"; required = $true }
 
-    # state=present params
-    generation = @{ type = "int"; default = 2 }
-    startup_memory_gb = @{ type = "int"; default = 4 }
-    path = @{ type = "str" }
-    switch = @{ type = "str" }
-    new_vhdx = @{ type = "bool"}
-    new_vhdx_size_gb = @{ type = "int"; default = 20 }
-    new_vhdx_path = @{ type = "str" }
-    boot_device = @{ type = "str"; choices = @("cd", "ide", "networkadapter", "vhd"); default = "networkadapter" }
-    existing_vhdx_path = @{ type = "str" }
-    cpu_count = @{ type = "int" }
+        # state=present params
+        generation = @{ type = "int"; default = 2 }
+        startup_memory_gb = @{ type = "int"; default = 4 }
+        path = @{ type = "str" }
+        switch = @{ type = "str" }
+        new_vhdx = @{ type = "bool"}
+        new_vhdx_size_gb = @{ type = "int"; default = 20 }
+        new_vhdx_path = @{ type = "str" }
+        boot_device = @{ type = "str"; choices = @("cd", "ide", "networkadapter", "vhd"); default = "networkadapter" }
+        existing_vhdx_path = @{ type = "str" }
+        cpu_count = @{ type = "int" }
 
-    # state=absent params
-    vmid = @{ type = "str" }
-    remove_vhdx = @{ type = "bool"; default = $false}
-  }
-  mutually_exclusive = @(
-    , @( 'new_vhdx', 'existing_vhdx_path' )
-  )
-  required_if = @(
-    , @( 'boot_device','vhd', @( 'new_vhdx', 'existing_vhdx_path'), $true)
-  )
-  supports_check_mode = $true
+        # state=absent params
+        vmid = @{ type = "str" }
+        remove_vhdx = @{ type = "bool"; default = $false}
+    }
+    mutually_exclusive = @(
+        , @( 'new_vhdx', 'existing_vhdx_path' )
+    )
+    required_if = @(
+        , @( 'boot_device','vhd', @( 'new_vhdx', 'existing_vhdx_path'), $true)
+    )
+    supports_check_mode = $true
 }
 
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
@@ -56,137 +58,154 @@ $vmid = $module.Params.vmid
 $removeVhdx = $module.Params.remove_vhdx
 
 $result = @{
-  changed = $false
+    changed = $false
 }
 
+# Functions section
+
 Function Create-VM {
-  # Fail fast block
-  if ($bootDevice -eq "ide" -and $generation -eq 2) {
-    $module.FailJson('Generation 2 VM does not support ide bootdevice. Use vhd instead.')
-  }
-
-  if ($bootDevice -eq "cd" -and ($newVhdx -or $existingVhdxPath)) {
-    $error_msg = "Can't set CD as the boot device when adding disks to a VM." +
-    " First, create the VM without disks and attach them later using the hyperv_guest_customization module, " +
-    "or create the VM with disks and then add the CD-ROM as the boot device using the same module."
-    $module.FailJson($error_msg)
-  }
-
-  $CheckVM = Get-VM -Name $name -ErrorAction SilentlyContinue
-
-  if (!$CheckVM) {
-    $newVmParams = @{
-      Name = $name
+    # Fail fast block
+    if ($bootDevice -eq "ide" -and $generation -eq 2) {
+        $module.FailJson('Generation 2 VM does not support ide bootdevice. Use vhd instead.')
     }
 
-    if ($memory) {
-      $newVmParams.MemoryStartupBytes = $memory * 1GB
+    if ($bootDevice -eq "cd" -and ($newVhdx -or $existingVhdxPath)) {
+        $error_msg = "Can't set CD as the boot device when adding disks to a VM." +
+        " First, create the VM without disks and attach them later using the hyperv_guest_customization module, " +
+        "or create the VM with disks and then add the CD-ROM as the boot device using the same module."
+        $module.FailJson($error_msg)
     }
 
-    if ($generation) {
-      $newVmParams.Generation = $generation
-    }
+    $CheckVM = Get-VM -Name $name -ErrorAction SilentlyContinue
 
-    if ($networkSwitch) {
-      $newVmParams.SwitchName = $networkSwitch
-    }
-
-    if (!$path) {
-      $defaultVmPath = (Get-VMhost).VirtualMachinePath
-      $newVmParams.Path = $defaultVmPath
-    } else {
-      $newVmParams.Path = $path
-    }
-
-    if ($newVhdx -and $newVhdxPath) {
-      $newVmParams.NewVHDPath = $newVhdxPath
-      $newVmParams.NewVHDSizeBytes = $newVhdxSizeGb * 1GB
-    } elseif ($newVhdx -and $path) {
-      $vhdxPath = Join-Path -Path $path -ChildPath "$name\Virtual Hard Disks\$name.vhdx"
-      $newVmParams.NewVHDPath = $vhdxPath
-      $newVmParams.NewVHDSizeBytes = $newVhdxSizeGb * 1GB
-    } elseif ($newVhdx) {
-      $defaultVhdxPath = (Get-VMhost).VirtualHardDiskPath
-      $vhdxPath = Join-Path -Path $defaultVhdxPath -ChildPath "$name.vhdx"
-      $newVmParams.NewVHDPath = $vhdxPath
-      $newVmParams.NewVHDSizeBytes = $newVhdxSizeGb * 1GB
-    }
-
-    if ($existingVhdxPath) {
-      $newVmParams.VHDPath = $existingVhdxPath
-    }
-
-    if ($module.CheckMode) {
-      $module.result.desired_action = "Create VM: $name"
-      $module.result.changed = $true
-    } else {
-      try {
-        $results = New-VM @newVmParams
-
-        if ($cpuCount) {
-          Set-VMProcessor -VMName $name -Count $cpuCount
+    if (!$CheckVM) {
+        $newVmParams = @{
+            Name = $name
         }
 
-        $hashTable = @{}
-        $results | Get-Member -MemberType Properties | Where-Object {
-          $_.Name -in @('Vmname', 'vmid', 'ConfigurationLocation', 'SmartPagingFilePath', 'ProcessorCount','SnapshotFileLocation', 'MemoryStartup', 'Generation', 'Path', 'harddrives')
-        } | ForEach-Object {
-          $value = $results.$($_.Name)
-          if ($null -ne $value -and $value -ne '') {
-          $hashTable.Add($_.Name, $value)
-          }
+        if ($memory) {
+            $newVmParams.MemoryStartupBytes = $memory * 1GB
         }
 
-        $module.result.vm_deploy_info = $hashTable
-        $module.result.changed = $true
-      } Catch {
-        $module.FailJson($_)
-      }
+        if ($generation) {
+            $newVmParams.Generation = $generation
+        }
+
+        if ($networkSwitch) {
+            $newVmParams.SwitchName = $networkSwitch
+        }
+
+        if (!$path) {
+            $defaultVmPath = (Get-VMhost).VirtualMachinePath
+            $newVmParams.Path = $defaultVmPath
+        }
+        else {
+            $newVmParams.Path = $path
+        }
+
+        if ($newVhdx -and $newVhdxPath) {
+            $newVmParams.NewVHDPath = $newVhdxPath
+            $newVmParams.NewVHDSizeBytes = $newVhdxSizeGb * 1GB
+        }
+        elseif ($newVhdx -and $path) {
+            $vhdxPath = Join-Path -Path $path -ChildPath "$name\Virtual Hard Disks\$name.vhdx"
+            $newVmParams.NewVHDPath = $vhdxPath
+            $newVmParams.NewVHDSizeBytes = $newVhdxSizeGb * 1GB
+        }
+        elseif ($newVhdx) {
+            $defaultVhdxPath = (Get-VMhost).VirtualHardDiskPath
+            $vhdxPath = Join-Path -Path $defaultVhdxPath -ChildPath "$name.vhdx"
+            $newVmParams.NewVHDPath = $vhdxPath
+            $newVmParams.NewVHDSizeBytes = $newVhdxSizeGb * 1GB
+        }
+
+        if ($existingVhdxPath) {
+            $newVmParams.VHDPath = $existingVhdxPath
+        }
+
+        if ($module.CheckMode) {
+            $module.result.desired_action = "Create VM: $name"
+            $module.result.changed = $true
+        }
+        else {
+            try {
+                $results = New-VM @newVmParams
+
+                if ($cpuCount) {
+                    Set-VMProcessor -VMName $name -Count $cpuCount
+                }
+
+                $hashTable = @{}
+                $results | Get-Member -MemberType Properties | Where-Object {
+                    $_.Name -in @('Vmname', 'vmid', 'ConfigurationLocation', 'SmartPagingFilePath', 'ProcessorCount','SnapshotFileLocation', 'MemoryStartup', 'Generation', 'Path', 'Harddrives')
+                } | ForEach-Object {
+                        $value = $results.$($_.Name)
+                        if ($null -ne $value -and $value -ne '') {
+                            $hashTable.Add($_.Name, $value)
+                        }
+                }
+
+                $module.result.vm_deploy_info = $hashTable
+                $module.result.changed = $true
+            }
+            Catch {
+                $module.FailJson($_)
+            }
+        }
     }
-  } else {
-    $module.result.changed = $false
-  }
+    else {
+        $module.result.changed = $false
+    }
 }
 
 Function Delete-VM {
-  if ($name) {
-    $vm = Get-VM -Name $name -ErrorAction SilentlyContinue
-    if ($vm.Count -gt 1) {
-      $module.FailJson('Found more than 1 VM with name $name. Use id parameter to remove the correct one.')
-    }
-  } elseif ($id) {
-    $vm = Get-VM -Id $id -ErrorAction SilentlyContinue
-  }
-
-  if ($vm) {
-    if ($module.CheckMode) {
-      $module.result.desired_action = "Remove VM: $($vm.Name)"
-      $module.result.changed = $true
-    } else {
-      try {
-        if ($removeVhdx) {
-          $vmHardDrives = Get-VMHardDiskDrive -VMName $vm.Name -ErrorAction SilentlyContinue
-          foreach ($disk in $vmHardDrives) {
-            Remove-Item -Path $disk.Path -Force -ErrorAction SilentlyContinue
-          }
+    if ($name) {
+        $vm = Get-VM -Name $name -ErrorAction SilentlyContinue
+        if ($vm.Count -gt 1) {
+            $module.FailJson('Found more than 1 VM with name $name. Use id parameter to remove the correct one.')
         }
-        Remove-VM -VM $vm -Force
-        $module.result.changed = $true
-      } Catch {
-        $module.FailJson($_)
-      }
     }
-  } else {
-    $module.result.changed = $false
-  }
+    elseif ($id) {
+        $vm = Get-VM -Id $id -ErrorAction SilentlyContinue
+    }
+
+    if ($vm) {
+        if ($module.CheckMode) {
+            $module.result.desired_action = "Remove VM: $($vm.Name)"
+            $module.result.changed = $true
+        }
+        else {
+            try {
+                if ($removeVhdx) {
+                    $vmHardDrives = Get-VMHardDiskDrive -VMName $vm.Name -ErrorAction SilentlyContinue
+                    foreach ($disk in $vmHardDrives) {
+                        Remove-Item -Path $disk.Path -Force -ErrorAction SilentlyContinue
+                    }
+                }
+
+                Remove-VM -VM $vm -Force
+                $module.result.changed = $true
+
+            }
+            Catch {
+                $module.FailJson($_)
+            }
+        }
+    }
+    else {
+        $module.result.changed = $false
+    }
 }
+
+# Script section
 
 Try {
     switch ($state) {
         "present" { Create-VM }
         "absent" { Delete-VM }
     }
-} Catch {
+}
+Catch {
     $module.FailJson($_)
 }
 

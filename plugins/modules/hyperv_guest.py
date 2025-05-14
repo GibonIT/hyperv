@@ -119,8 +119,19 @@ EXAMPLES = r'''
 
 RETURN = r'''
 vm_deploy_info:
-    description: metadata about the new virtual machine
-    returned: only when machine is created
-    type: dict
-    sample: None
+  description: Metadata about the new virtual machine.
+  returned: changed
+  type: dict
+  sample:
+    vmname: TestVM
+    vmid: "12345678-1234-1234-1234-123456789abc"
+    ConfigurationLocation: "C:\\Hyper-V\\TestVM"
+    SmartPagingFilePath: "C:\\Hyper-V\\TestVM"
+    ProcessorCount: 4
+    SnapshotFileLocation: "C:\\Hyper-V\\TestVM\\Snapshots"
+    MemoryStartup: 4294967296
+    Generation: 2
+    Path: "C:\\Hyper-V\\TestVM"
+    Harddrives:
+      - "C:\\Hyper-V\\TestVM\\Virtual Hard Disks\\TestVM.vhdx"
 '''
