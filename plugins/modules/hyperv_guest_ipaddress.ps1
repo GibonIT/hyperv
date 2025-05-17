@@ -13,7 +13,7 @@ $spec = @{
         mask = @{ type = "str"; required = $true }
         gateway = @{ type = "str"; required = $true }
         ipaddress = @{ type = "str"; required = $true }
-        dnsservers = @{ type = "str"; required = $false }
+        dnsservers = @{ type = "list"; required = $false }
     }
     supports_check_mode = $true
 }
@@ -46,7 +46,7 @@ $ipstuff.DHCPEnabled = $false
 $ipstuff.DNSServers = $DNSServers
 $ipstuff.IPAddresses = $IPaddress
 $ipstuff.Subnets = $Mask
-$ipstuff.DefaultGateways = $GateW
+$ipstuff.DefaultGateways = $gateway
 
 Try {
     if ($module.CheckMode) {
