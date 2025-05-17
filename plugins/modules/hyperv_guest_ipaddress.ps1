@@ -13,7 +13,7 @@ $spec = @{
         mask = @{ type = "str"; required = $true }
         gateway = @{ type = "str"; required = $true }
         ipaddress = @{ type = "str"; required = $true }
-        dnsservers = @{ type = "list"; required = $false }
+        dnsservers = @{ type = "str"; required = $false }
     }
     supports_check_mode = $true
 }
