@@ -14,6 +14,7 @@ $spec = @{
         # Global params
         state = @{ type = "str"; choices = @("present", "absent"); default = "present" }
         name = @{ type = "str"; required = $true }
+        version = @{ type = "str"; choices = @("9.0", "10.0", "11.0") }
 
         # state=present params
         generation = @{ type = "int"; default = 2 }
@@ -44,6 +45,7 @@ $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 $state = $module.Params.state
 $name = $module.Params.name
+$version = $module.Params.version
 $generation = $module.Params.generation
 $memory = $module.Params.startup_memory_gb
 $path = $module.Params.path
@@ -89,6 +91,10 @@ Function Create-VM {
 
         if ($generation) {
             $newVmParams.Generation = $generation
+        }
+
+        if ($version) {
+            $newVmParams.Version = $version
         }
 
         if ($networkSwitch) {

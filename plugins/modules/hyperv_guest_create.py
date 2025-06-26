@@ -6,7 +6,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: gibonit.hyperv.hyperv_guest
+module: gibonit.hyperv.hyperv_guest_create
 short_description: Manage Hyper-V virtual machines
 description:
 - Create, configure, or remove Hyper-V virtual machines.
@@ -29,6 +29,14 @@ options:
     - Generation of the virtual machine (1 or 2).
     default: 2
     type: int
+  version:
+    description:
+    - Version of the virtal machine. If not defined, VM is created with the default version of the Hyper-V host.
+    - 9.0 = Hyper-V 2019
+    - 10.0 = Hyper-V 2022
+    - 11.0 = Hyper-V 2025
+    choices: [ 9.0, 10.0, 11.0 ]
+    type: str
   startup_memory_gb:
     description:
     - Startup memory for the virtual machine in GB.
@@ -92,18 +100,18 @@ author:
 
 EXAMPLES = r'''
 - name: Create a new VM
-  gibonit.hyperv.hyperv_guest:
+  gibonit.hyperv.hyperv_guest_create:
     name: TestVM
     state: present
 
 - name: Create a new VM with 4 cores
-  gibonit.hyperv.hyperv_guest:
+  gibonit.hyperv.hyperv_guest_create:
     name: TestVM
     state: present
     cpu_count: 4
 
 - name: Create VM with new VHDX and attach to a virtual switch
-  gibonit.hyperv.hyperv_guest:
+  gibonit.hyperv.hyperv_guest_create:
     name: TestVM
     state: present
     new_vhdx: true
@@ -111,7 +119,7 @@ EXAMPLES = r'''
     switch: DefaultSwitch
 
 - name: Remove VM and VHDX
-  gibonit.hyperv.hyperv_guest:
+  gibonit.hyperv.hyperv_guest_create:
     name: TestVM
     state: absent
     remove_vhdx: true

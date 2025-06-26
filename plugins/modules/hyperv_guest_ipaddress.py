@@ -43,7 +43,7 @@ notes:
 - This module uses the Hyper-V WMI provider for network configuration.
 seealso:
 - module: gibonit.hyperv.hyperv_disk
-- module: gibonit.hyperv.hyperv_guest
+- module: gibonit.hyperv.hyperv_guest_create
 author:
 - Leos Marek (@GibonIT)
 '''

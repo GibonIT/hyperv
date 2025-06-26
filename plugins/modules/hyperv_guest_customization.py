@@ -89,7 +89,7 @@ notes:
 - Ensure the Hyper-V role is installed and enabled on the host system.
 - Use this module to modify existing virtual machines. For creating new VMs, use the gibonit.hyperv.hyperv_guest module.
 seealso:
-- module: gibonit.hyperv.hyperv_guest
+- module: gibonit.hyperv.hyperv_guest_create
 - module: gibonit.hyperv.hyperv_guest_powerstate
 author:
 - Leos Marek (@GibonIT)

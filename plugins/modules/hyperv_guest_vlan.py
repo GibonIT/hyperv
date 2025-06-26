@@ -48,7 +48,7 @@ notes:
 - Ensure the Hyper-V role is installed and enabled on the host system.
 - Use the adapter_name parameter if the VM has multiple network adapters.
 seealso:
-- module: gibonit.hyperv.hyperv_guest
+- module: gibonit.hyperv.hyperv_guest_create
 - module: gibonit.hyperv.hyperv_guest_powerstate
 author:
 - Leos Marek (@GibonIT)
